@@ -1,0 +1,22 @@
+# Personal data: recordings, transcripts, slides (kept local only)
+recordings/
+transcripts/
+slides/
+notes/
+*.m4a
+*.mp3
+*.wav
+*.aiff
+*.caf
+*.flac
+
+# Run artifacts
+transcribe.log
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# macOS
+.DS_Store

@@ -1,0 +1,5 @@
+mlx==0.32.4
+mlx-speech==0.5.4
+numpy==2.5.4
+opencc==1.4.2
+soundfile==0.14.0
