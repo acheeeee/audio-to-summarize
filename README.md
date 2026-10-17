@@ -1,6 +1,6 @@
 # Audio to Summarize
 
-在 Mac 本機把上課錄音轉成逐字稿，再交給 Claude 整理重點。不需要 API、不用付費、錄音不會離開電腦。
+在 Mac 本機把上課錄音轉成逐字稿，再交給 Claude 整理重點，錄音不會離開電腦。
 
 - 模型：[Cohere Transcribe](https://docs.cohere.com/docs/transcribe) 2B（MLX int8 版，透過 [mlx-speech](https://github.com/appautomaton/mlx-speech) 執行）
 - 自動判斷每個檔案是英文還是中文授課；中文課的英文術語會保留英文，並轉成台灣繁體
