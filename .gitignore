@@ -9,6 +9,8 @@ notes/
 *.aiff
 *.caf
 *.flac
+# ...except the synthetic samples
+!examples/audio/*.m4a
 
 # Run artifacts
 transcribe.log

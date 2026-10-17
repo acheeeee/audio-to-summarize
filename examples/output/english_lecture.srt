@@ -1,0 +1,11 @@
+1
+00:00:00,000 --> 00:00:33,700
+Good morning, everyone. Today, we are going to continue our discussion of gradient descent. Last week, we talked about the loss function and how we measure the difference between the model's prediction and the true label. This week, I want to focus on how we actually minimize that loss. The basic idea is simple we compute the gradient of the loss with respect to each parameter, and then we take a small step in the opposite direction. The size of that step is called the learning rate. If the learning rate is too large, the training will diverge. If it is too small, training will take forever. In practice,
+
+2
+00:00:33,700 --> 00:01:05,800
+Most people use an optimizer called ADOM, which adapts the learning rate for each parameter automatically. Another important concept is the mini batch. Instead of computing the gradient over the entire data set, we sample a small batch of examples, maybe 32 or 64, and estimate the gradient from those. This is called stochastic gradient descent. It is noisy, but it is much faster, and the noise actually helps the model escape bad local minima. For the homework, please implement stochastic gradient descent from scratch in Python.
+
+3
+00:01:05,800 --> 00:01:12,461
+And compare it with the Atom Optimizer on the MNIST dataset. The assignment is due next Friday at midnight.

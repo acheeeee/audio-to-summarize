@@ -72,13 +72,32 @@ uv pip install --python .venv/bin/python -r requirements.txt
 | `<名稱>.txt` | 逐字稿，每 2 分鐘一段，開頭標 `[時:分:秒]`，**拿來給 Claude 整理** |
 | `<名稱>.srt` | 字幕檔，每段約 30 秒，可以搭配錄音播放 |
 
-`.txt` 的格式長這樣（示意）：
+`.txt` 的格式長這樣（示意，實際輸出見下方範例）：
 
 ```
-[00:00:00] Good morning everyone. Today we are going to continue our discussion of gradient descent ...
+[00:00:00] Good morning, everyone. Today, we are going to continue our discussion of gradient descent ...
 
-[00:02:04] So the learning rate controls the step size. If it is too large, training will diverge ...
+[00:02:04] So the learning rate controls the step size. If it is too large, the training will diverge ...
 ```
+
+## 範例
+
+[`examples/`](examples) 裡有兩段**用 macOS 語音合成產生的假課堂錄音**，以及它們實際跑出來的結果，可以先用來確認環境：
+
+```bash
+.venv/bin/python transcribe.py examples/audio -o examples/output --overwrite
+```
+
+| 範例 | 長度 | 判斷語言 | 錯誤率 | 錯在哪 |
+|---|---|---|---|---|
+| `english_lecture`（英文，gradient descent） | 1:12 | en | WER 0.9%（2/214 詞） | Adam → "ADOM"、"Atom" |
+| `mandarin_lecture`（中文夾英文術語，color model） | 1:20 | zh | CER 1.2%（4/341 字） | 佔→站、慢→滿、B乘→比呈 |
+
+- `examples/audio/`：輸入音檔
+- `examples/reference/`：朗讀用的原稿（正確答案）
+- `examples/output/`：實際輸出的 `.txt` 和 `.srt`
+
+合成語音很乾淨，真實教室錄音（回音、離麥克風遠、口音）的錯誤率會明顯比較高。
 
 ## 參數
 
