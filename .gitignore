@@ -1,19 +1,20 @@
-# Personal data: recordings, transcripts, slides (kept local only)
-recordings/
-transcripts/
-slides/
+# Personal data, kept local only:
+# recordings and slides (data/), transcripts and extracted slide text (processed/),
+# study notes (notes/), the model link (models/) and one-off files (misc/)
+data/
+processed/
 notes/
+models/
+misc/
 *.m4a
 *.mp3
 *.wav
 *.aiff
 *.caf
 *.flac
+*.pdf
 # ...except the synthetic samples
 !examples/audio/*.m4a
-
-# Run artifacts
-transcribe.log
 
 # Python
 .venv/

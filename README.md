@@ -9,12 +9,30 @@
 ## 流程
 
 ```
-語音備忘錄 ──import_voice_memos.py──▶ recordings/<課程>/*.m4a
+語音備忘錄 ──import_voice_memos.py──▶ data/recordings/<課程>/*.m4a
                                             │
                                      transcribe.py
                                             ▼
-                                  transcripts/<課程>/*.txt / *.srt ──▶ Claude 整理重點
+                         processed/transcripts/<課程>/*.txt / *.srt ──▶ Claude 整理重點
 ```
+
+## 資料夾結構
+
+```
+├── src/          程式：轉錄、匯入語音備忘錄、講義前處理
+├── examples/     合成語音範例（輸入、原稿、實際輸出）
+├── models/       模型（指向 Hugging Face 快取的連結，本機才有）
+├── data/         原始資料（本機才有）
+│   ├── recordings/<課程>/   課堂錄音
+│   └── slides/<課程>/       講義 PDF
+├── processed/    處理結果（本機才有）
+│   ├── transcripts/<課程>/  逐字稿（.txt / .srt）＋ 講義對照表
+│   ├── slides_text/<課程>/  講義每頁的文字
+│   └── logs/
+└── notes/        重點筆記與作業（本機才有）
+```
+
+標示「本機才有」的資料夾都在 `.gitignore` 裡，不會上傳。
 
 ## 安裝
 
@@ -31,7 +49,7 @@ uv pip install --python .venv/bin/python -r requirements.txt
 
 ### 1. 匯入錄音（可選）
 
-`import_voice_memos.py` 會依照錄音的**開始時間**，把語音備忘錄複製到對應課程的資料夾。課表寫在檔案上方的 `SCHEDULE`，可以自行修改：
+`src/import_voice_memos.py` 會依照錄音的**開始時間**，把語音備忘錄複製到對應課程的資料夾。課表寫在檔案上方的 `SCHEDULE`，可以自行修改：
 
 | 時間 | 課程 |
 |---|---|
@@ -42,30 +60,40 @@ uv pip install --python .venv/bin/python -r requirements.txt
 | 星期五 12:00 前 | 資料庫系統 |
 
 ```bash
-.venv/bin/python import_voice_memos.py --dry   # 先預覽
-.venv/bin/python import_voice_memos.py         # 實際複製
+.venv/bin/python src/import_voice_memos.py --dry   # 先預覽
+.venv/bin/python src/import_voice_memos.py         # 實際複製
 ```
 
 - 只會**複製**，不會動到語音備忘錄裡的原檔；短於 1 分鐘、不符合任何時段、已經複製過的錄音會略過。
 - macOS 會保護語音備忘錄的資料夾，執行時需要暫時開啟終端機的「完整磁碟取用權限」（系統設定 → 隱私權與安全性），用完可以關掉。
-- 不想開權限的話，也可以直接從語音備忘錄 app 把錄音拖進 `recordings/<課程>/`。
+- 不想開權限的話，也可以直接從語音備忘錄 app 把錄音拖進 `data/recordings/<課程>/`。
 
 ### 2. 轉錄
 
 ```bash
-.venv/bin/python transcribe.py                       # 轉 recordings/ 底下全部
-.venv/bin/python transcribe.py path/to/lecture.m4a   # 指定檔案或資料夾
-.venv/bin/python transcribe.py --overwrite           # 重轉已經轉過的
-.venv/bin/python transcribe.py --language en         # 強制語言（預設 auto）
+.venv/bin/python src/transcribe.py                       # 轉 data/recordings/ 底下全部
+.venv/bin/python src/transcribe.py path/to/lecture.m4a   # 指定檔案或資料夾
+.venv/bin/python src/transcribe.py --overwrite           # 重轉已經轉過的
+.venv/bin/python src/transcribe.py --language en         # 強制語言（預設 auto）
 ```
 
 已經有逐字稿的檔案會自動跳過，所以可以分批加入新錄音再執行。
 
+### 3. 講義前處理（可選）
+
+把講義 PDF 放進 `data/slides/<課程>/`，抽出每一頁的文字，方便對照逐字稿和整理重點：
+
+```bash
+.venv/bin/python src/extract_slides.py data/slides/*
+```
+
+每份 PDF 會在 `processed/slides_text/<課程>/` 產生一個 Markdown，每頁一段 `## p.N`。圖或公式為主、抽不到文字的頁面會另外標註；用圖片或特殊字型畫的數學符號抽不出來。
+
 ## 輸入與輸出
 
-**輸入**：`recordings/<課程>/` 底下的音檔，支援 m4a、mp3、wav、aiff、flac、mp4 等格式。子資料夾結構會照樣保留到輸出。
+**輸入**：`data/recordings/<課程>/` 底下的音檔，支援 m4a、mp3、wav、aiff、flac、mp4 等格式。子資料夾結構會照樣保留到輸出。
 
-**輸出**：每個錄音會在 `transcripts/<課程>/` 產生兩個檔案：
+**輸出**：每個錄音會在 `processed/transcripts/<課程>/` 產生兩個檔案：
 
 | 檔案 | 內容 |
 |---|---|
@@ -85,7 +113,7 @@ uv pip install --python .venv/bin/python -r requirements.txt
 [`examples/`](examples) 裡有兩段**用 macOS 語音合成產生的假課堂錄音**，以及它們實際跑出來的結果，可以先用來確認環境：
 
 ```bash
-.venv/bin/python transcribe.py examples/audio -o examples/output --overwrite
+.venv/bin/python src/transcribe.py examples/audio -o examples/output --overwrite
 ```
 
 | 範例 | 長度 | 判斷語言 | 錯誤率 | 錯在哪 |
@@ -117,4 +145,4 @@ uv pip install --python .venv/bin/python -r requirements.txt
 
 ## 為什麼錄音和逐字稿沒有上傳
 
-`recordings/`、`transcripts/` 都在 `.gitignore` 裡。錄音和逐字稿包含老師的授課內容和實驗室會議的討論（可能有未發表的研究），所以只留在本機，這個 repo 只放程式。
+`data/`、`processed/`、`notes/` 都在 `.gitignore` 裡。錄音、講義和逐字稿包含老師的授課內容和實驗室會議的討論（可能有未發表的研究），所以只留在本機，這個 repo 只放程式。

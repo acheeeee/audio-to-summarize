@@ -1,11 +1,11 @@
-"""Copy Apple Voice Memos into recordings/<course>/ based on when they were recorded.
+"""Copy Apple Voice Memos into data/recordings/<course>/ based on when they were recorded.
 
 Usage:
-    .venv/bin/python import_voice_memos.py --dry   # preview only
-    .venv/bin/python import_voice_memos.py         # copy
+    .venv/bin/python src/import_voice_memos.py --dry   # preview only
+    .venv/bin/python src/import_voice_memos.py         # copy
 
 Reads the Voice Memos database read-only and copies (never moves) each memo to
-recordings/<course>/<YYYY-MM-DD HHMM>.m4a. Memos shorter than a minute, memos
+data/recordings/<course>/<YYYY-MM-DD HHMM>.m4a. Memos shorter than a minute, memos
 that match no rule, and memos already copied are skipped.
 
 The terminal app running this needs Full Disk Access (System Settings ->
@@ -21,7 +21,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 SRC = Path.home() / "Library/Group Containers/group.com.apple.VoiceMemos.shared/Recordings"
-DST = Path(__file__).resolve().parent / "recordings"
+DST = Path(__file__).resolve().parent.parent / "data" / "recordings"
 EPOCH = datetime(2001, 1, 1, tzinfo=timezone.utc)  # Core Data timestamps count from here
 MIN_SECONDS = 60
 

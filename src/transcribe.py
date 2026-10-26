@@ -1,14 +1,14 @@
 """Batch-transcribe lecture recordings locally with Cohere Transcribe (MLX).
 
 Usage:
-    .venv/bin/python transcribe.py                    # everything in ./recordings
-    .venv/bin/python transcribe.py lecture01.m4a      # specific files or folders
-    .venv/bin/python transcribe.py --overwrite        # redo files already transcribed
+    .venv/bin/python src/transcribe.py                    # everything in data/recordings
+    .venv/bin/python src/transcribe.py lecture01.m4a      # specific files or folders
+    .venv/bin/python src/transcribe.py --overwrite        # redo files already transcribed
 
 The language is detected per file (English or Mandarin; Mandarin keeps English
 terms as English) and Mandarin output is converted to Traditional Chinese.
 
-For each recording it writes, into ./transcripts:
+For each recording it writes, into processed/transcripts:
     <name>.txt  transcript in paragraphs with [hh:mm:ss] markers (paste this into Claude)
     <name>.srt  subtitles, one ~30 s segment per cue
 """
@@ -35,7 +35,7 @@ from mlx_speech.models.cohere_asr.feature_extraction import split_audio_chunks
 
 SR = 16000
 AUDIO_EXTS = {".m4a", ".mp3", ".wav", ".aiff", ".aif", ".caf", ".flac", ".aac", ".mp4", ".mov", ".ogg", ".webm"}
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parent.parent  # project root (this file is in src/)
 TO_TRADITIONAL = opencc.OpenCC("s2twp")  # Simplified -> Taiwan Traditional, incl. phrasing
 # A phrase of 2-80 chars repeated 3+ times back to back: greedy decoding looping on
 # silence or noise ("The color model is the color model. The color model is ...").
@@ -145,7 +145,7 @@ def write_outputs(segments: list[tuple[float, float, str]], stem: Path, language
 
 def collect_inputs(paths: list[Path]) -> list[tuple[Path, Path]]:
     """Return (audio file, output stem relative to --out); subfolders such as
-    recordings/<course>/ are mirrored as transcripts/<course>/."""
+    data/recordings/<course>/ are mirrored as processed/transcripts/<course>/."""
     files: list[tuple[Path, Path]] = []
     for p in paths:
         if p.is_dir():
@@ -160,9 +160,9 @@ def collect_inputs(paths: list[Path]) -> list[tuple[Path, Path]]:
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("inputs", nargs="*", type=Path, default=[ROOT / "recordings"],
-                    help="audio files or folders (default: ./recordings)")
-    ap.add_argument("-o", "--out", type=Path, default=ROOT / "transcripts", help="output folder")
+    ap.add_argument("inputs", nargs="*", type=Path, default=[ROOT / "data" / "recordings"],
+                    help="audio files or folders (default: data/recordings)")
+    ap.add_argument("-o", "--out", type=Path, default=ROOT / "processed" / "transcripts", help="output folder")
     ap.add_argument("--language", default="auto", help="auto (English or Mandarin, per file), or an ISO 639-1 code such as en, zh")
     ap.add_argument("--model", default="cohere-asr", help="mlx-speech alias, HF repo, or local path")
     ap.add_argument("--overwrite", action="store_true", help="re-transcribe files that already have a .txt")
@@ -170,7 +170,7 @@ def main() -> int:
 
     files = collect_inputs(args.inputs)
     if not files:
-        print("No audio files found. Put recordings in ./recordings or pass paths.", file=sys.stderr)
+        print("No audio files found. Put recordings in data/recordings or pass paths.", file=sys.stderr)
         return 1
     todo = [(f, rel) for f, rel in files
             if args.overwrite or not Path(f"{args.out / rel}.txt").exists()]
